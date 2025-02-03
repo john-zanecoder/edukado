@@ -1,0 +1,238 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mongodb"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  username  String
+  email     String  @unique
+  password  String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @default(now())
+  deletedAt DateTime?
+  roleId    String   @db.ObjectId
+  role      Role     @relation(fields: [roleId], references: [id])
+  admin     Admin?
+  student   Student?
+  teacher   Teacher?
+}
+
+model Role {
+  id          String @id @default(auto()) @map("_id") @db.ObjectId
+  name        String
+  description String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @default(now())
+  deletedAt   DateTime?
+  users       User[]
+}
+
+model Admin {
+  id        String @id @default(auto()) @map("_id") @db.ObjectId
+  name      String
+  userId    String @unique @db.ObjectId
+  user      User   @relation(fields: [userId], references: [id])
+  createdAt DateTime @default(now())
+  updatedAt DateTime @default(now())
+  deletedAt DateTime?
+}
+
+model Student {
+  id           String @id @default(auto()) @map("_id") @db.ObjectId
+  name         String
+  userId       String @unique @db.ObjectId
+  user         User    @relation(fields: [userId], references: [id])
+  teacherId    String? @db.ObjectId
+  teacher      Teacher? @relation(fields: [teacherId], references: [id], name: "StudentTeacher")
+  enrollments  Enrollment[]
+  assignments  Assignment[]
+  courseGrades CourseGrade[]
+  courses      StudentCourse[]
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @default(now())
+  deletedAt    DateTime?
+}
+
+model Teacher {
+  id          String @id @default(auto()) @map("_id") @db.ObjectId
+  name        String
+  userId      String @unique @db.ObjectId
+  user        User   @relation(fields: [userId], references: [id])
+  courses     Course[]
+  students    Student[] @relation(name: "StudentTeacher")
+  assignments Assignment[] // Relation to assignments created by the teacher
+  exams       Exam[] // Relation to exams created by the teacher
+  quizzes     Quiz[] // Relation to quizzes created by the teacher
+  lessons     Lesson[] // Relation to lessons created by the teacher
+  enrollments Enrollment[] // Relation to enrollments managed by the teacher
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @default(now())
+  deletedAt   DateTime?
+}
+
+model Course {
+  id           String   @id @default(auto()) @map("_id") @db.ObjectId
+  title        String
+  description  String
+  teacherId    String? @db.ObjectId
+  teacher      Teacher? @relation(fields: [teacherId], references: [id])
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @default(now())
+  deletedAt    DateTime?
+  lessons      Lesson[]
+  quizzes      Quiz[]
+  exams        Exam[]
+  assignments  Assignment[]
+  enrollments  Enrollment[]
+  courseGrades CourseGrade[]
+  students     StudentCourse[]
+}
+
+model StudentCourse {
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  studentId String   @db.ObjectId
+  courseId  String   @db.ObjectId
+  student   Student  @relation(fields: [studentId], references: [id])
+  course    Course   @relation(fields: [courseId], references: [id])
+  createdAt DateTime @default(now())
+  updatedAt DateTime @default(now())
+  deletedAt DateTime?
+}
+
+model Lesson {
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  title     String
+  content   String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @default(now())
+  deletedAt DateTime?
+  courseId  String? @db.ObjectId
+  course    Course? @relation(fields: [courseId], references: [id])
+  teacherId String? @db.ObjectId
+  teacher   Teacher? @relation(fields: [teacherId], references: [id])
+}
+
+model Quiz {
+  id          String   @id @default(auto()) @map("_id") @db.ObjectId
+  title       String
+  description String
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @default(now())
+  deletedAt   DateTime?
+  courseId    String? @db.ObjectId
+  course      Course? @relation(fields: [courseId], references: [id])
+  questions   QuizQuestion[]
+  score       Float?
+  teacherId   String? @db.ObjectId
+  teacher     Teacher? @relation(fields: [teacherId], references: [id])
+}
+
+model QuizQuestion {
+  id         String  @id @default(auto()) @map("_id") @db.ObjectId
+  text       String
+  type       String
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @default(now())
+  deletedAt  DateTime?
+  quizId     String? @db.ObjectId
+  quiz       Quiz? @relation(fields: [quizId], references: [id])
+  options    QuizOption[]
+}
+
+model QuizOption {
+  id        String  @id @default(auto()) @map("_id") @db.ObjectId
+  text      String
+  isCorrect Boolean
+  createdAt DateTime @default(now())
+  updatedAt DateTime @default(now())
+  deletedAt DateTime?
+  questionId String? @db.ObjectId
+  question  QuizQuestion? @relation(fields: [questionId], references: [id])
+}
+
+model Exam {
+  id          String   @id @default(auto()) @map("_id") @db.ObjectId
+  title       String
+  description String
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @default(now())
+  deletedAt   DateTime?
+  courseId    String? @db.ObjectId
+  course      Course? @relation(fields: [courseId], references: [id])
+  questions   ExamQuestion[]
+  score       Float?
+  teacherId   String? @db.ObjectId
+  teacher     Teacher? @relation(fields: [teacherId], references: [id])
+}
+
+model ExamQuestion {
+  id        String  @id @default(auto()) @map("_id") @db.ObjectId
+  text      String
+  type      String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @default(now())
+  deletedAt DateTime?
+  examId    String? @db.ObjectId
+  exam      Exam? @relation(fields: [examId], references: [id])
+  options   ExamOption[]
+}
+
+model ExamOption {
+  id        String  @id @default(auto()) @map("_id") @db.ObjectId
+  text      String
+  isCorrect Boolean
+  createdAt DateTime @default(now())
+  updatedAt DateTime @default(now())
+  deletedAt DateTime?
+  questionId String? @db.ObjectId
+  question  ExamQuestion? @relation(fields: [questionId], references: [id])
+}
+
+model Assignment {
+  id          String  @id @default(auto()) @map("_id") @db.ObjectId
+  title       String
+  description String
+  dueDate     DateTime
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @default(now())
+  deletedAt   DateTime?
+  courseId    String? @db.ObjectId
+  course      Course? @relation(fields: [courseId], references: [id])
+  studentId   String? @db.ObjectId
+  student     Student? @relation(fields: [studentId], references: [id])
+  teacherId   String? @db.ObjectId
+  teacher     Teacher? @relation(fields: [teacherId], references: [id])
+}
+
+model Enrollment {
+  id         String  @id @default(auto()) @map("_id") @db.ObjectId
+  courseId   String? @db.ObjectId
+  course     Course? @relation(fields: [courseId], references: [id])
+  studentId  String? @db.ObjectId
+  student    Student? @relation(fields: [studentId], references: [id])
+  teacherId  String? @db.ObjectId
+  teacher    Teacher? @relation(fields: [teacherId], references: [id])
+  date       DateTime
+  status     String
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @default(now())
+  deletedAt  DateTime?
+}
+
+model CourseGrade {
+  id        String @id @default(auto()) @map("_id") @db.ObjectId
+  studentId String? @db.ObjectId
+  student   Student? @relation(fields: [studentId], references: [id])
+  courseId  String? @db.ObjectId
+  course    Course? @relation(fields: [courseId], references: [id])
+  grade     Float
+  createdAt DateTime @default(now())
+  updatedAt DateTime @default(now())
+  deletedAt DateTime?
+}
+

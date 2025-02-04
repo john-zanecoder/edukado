@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { hash } from "bcryptjs";
-import { db } from "@/lib/db";
+import db from "@/lib/db";
 
 let isConnected = false;
 

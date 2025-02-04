@@ -4,9 +4,8 @@ import { SparklesCore } from "@/components/sparkles"
 
 export default function Home() {
   return (
-    <main className="min-h-screen bg-black/[0.96] antialiased bg-grid-white/[0.02] relative overflow-hidden">
-      {/* Ambient background with moving particles */}
-      <div className="h-full w-full absolute inset-0 z-0">
+    <main className="min-h-screen bg-black antialiased">
+      <div className="h-full w-full absolute inset-0 bg-grid-white/[0.02]">
         <SparklesCore
           id="tsparticlesfullpage"
           background="transparent"
@@ -17,7 +16,6 @@ export default function Home() {
           particleColor="#FFFFFF"
         />
       </div>
-
       <div className="relative z-10">
         <Navbar />
         <Hero />

@@ -2,7 +2,7 @@
 
 import { useState } from "react"
 import { Button } from "@/components/ui/button"
-import { Menu, Notebook } from "lucide-react"
+import { Menu, Book } from "lucide-react"
 import { motion } from "framer-motion"
 import Link from "next/link"
 import type React from "react"
@@ -21,7 +21,7 @@ export default function Navbar() {
         className="flex items-center justify-between px-6 py-4 backdrop-blur-sm border-b border-white/10"
       >
         <Link href="/" className="flex items-center space-x-2">
-          <Notebook className="w-8 h-8 text-purple-500" />
+          <Book className="w-8 h-8 text-purple-500" />
           <span className="text-white font-medium text-xl">edukado</span>
         </Link>
 
